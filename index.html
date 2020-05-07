@@ -74,6 +74,31 @@
             }
         }
 
+        function handleAddTodo(name, callback) {
+            return (dispatch) => {
+                return API.saveTodo(name)
+                    .then(todo => {
+                        dispatch(addTodoAction(todo))
+                        callback()
+                    })
+                    .catch(() => {
+                        alert("Sorry, but there was an error. Please try again...")
+                    })
+            }
+        }
+
+        function handleToggle(id) {
+            return (dispatch) => {
+                dispatch(toggleTodoAction(id))
+
+                return API.saveTodoToggle(id)
+                    .catch(() => {
+                        dispatch(toggleTodoAction(id))
+                        alert('An error occurred. Please try again')
+                    })
+            }
+        }
+
         function handleDeleteTodo(todo) {
             return (dispatch) => {
                 dispatch(removeTodoAction(todo.id))
@@ -213,14 +238,10 @@
             addItem = event => {
                 event.preventDefault()
 
-                return API.saveTodo(this.input.value)
-                    .then(todo => {
-                        this.props.store.dispatch(addTodoAction(todo))
-                        this.input.value = ''
-                    })
-                    .catch(() => {
-                        alert("Sorry, but there was an error. Please try again...")
-                    })
+                this.props.store.dispatch(handleAddTodo(
+                    this.input.value,
+                    () => this.input.value = ''
+                ))
             }
 
             removeItem = todo => {
@@ -228,13 +249,7 @@
             }
 
             toggleItem = id => {
-                this.props.store.dispatch(toggleTodoAction(id))
-
-                return API.saveTodoToggle(id)
-                    .catch(() => {
-                        this.props.store.dispatch(toggleTodoAction(id))
-                        alert('An error occurred. Please try again')
-                    })
+                this.props.store.dispatch(handleToggle(id))
             }
 
             render() {
