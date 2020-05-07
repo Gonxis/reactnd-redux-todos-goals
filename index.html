@@ -85,6 +85,31 @@
             }
         }
 
+        function handleAddGoal(name, callback) {
+            return (dispatch) => {
+                return API.saveGoal(name)
+                    .then(goal => {
+                        dispatch(addGoalAction(goal))
+                        callback()
+                    })
+                    .catch(() => {
+                        alert("Sorry, but there was an error. Please try again...")
+                    })
+            }
+        }
+
+        function handleDeleteGoal(goal) {
+            return (dispatch) => {
+                dispatch(removeGoalAction(goal.id))
+
+                return API.deleteGoal(goal.id)
+                    .catch(() => {
+                        dispatch(addGoalAction(goal))
+                        alert('An error occurred. Please try again')
+                    })
+            }
+        }
+
         function todos(state = [], action) {
             switch (action.type) {
                 case ADD_TODO:
@@ -237,24 +262,14 @@
             addItem = event => {
                 event.preventDefault()
 
-                return API.saveGoal(this.input.value)
-                    .then(goal => {
-                        this.props.store.dispatch(addTodoAction(goal))
-                        this.input.value = ''
-                    })
-                    .catch(() => {
-                        alert("Sorry, but there was an error. Please try again...")
-                    })
+                this.props.store.dispatch(handleAddGoal(
+                    this.input.value,
+                    () => this.input.value = ''
+                ))
             }
 
             removeItem = goal => {
-                this.props.store.dispatch(removeGoalAction(goal.id))
-
-                return API.deleteGoal(goal.id)
-                    .catch(() => {
-                        this.props.store.dispatch(addGoalAction(goal))
-                        alert('An error occurred. Please try again')
-                    })
+                this.props.store.dispatch(handleDeleteGoal(goal))
             }
 
             render() {
